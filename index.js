@@ -1,22 +1,50 @@
-const fs = require('fs');
-const path = require('path');
-const express = require('express');
+const { response } = require("express");
+const fs = require("fs");
+var revil = [];
 
+getDateString=()=> {
+    const date = new Date();
+    var currentTimeInSeconds = Math.floor(Date.now() / 1000);
+    const year = date.getFullYear();
+    const month = `${date.getMonth() + 1}`.padStart(2, '0');
+    const day = `${date.getDate()}`.padStart(2, '0');
+    var hour = date.getHours();
+    var minutes = date.getMinutes();
+    var seconds = date.getSeconds();
+    return `${year}-${month}-${day}-${hour}-${minutes}-${seconds}` 
+}
+
+
+var data = getDateString();
+const date = new Date();
+let time = date.getTime();
+
+const express = require("express");   
 const app = express();
-const port = 3000;
+const PORT = 3000;
 
-const folderPath = './files';
-const fileName = `${new Date().toISOString().replace(/:/g, '-')}.txt`;
-const filePath = path.join(folderPath, fileName);
-const fileContent = new Date().toISOString();
+fs.writeFile(`./files/${data}.txt`, `Date:${data}Time:${time}`,
+ (err) => console.log("hi there project success"));
 
-fs.writeFile(filePath, fileContent, (err) => {
-  if (err) {
-    console.error(err);
-    return;
-  }
-  console.log(`File ${fileName} has been created with content: ${fileContent}`);
+fs.readFile(`./files/${data}.txt`, "utf-8", (err, data) => { 
+    console.log(data);
+    app.get("/", (request, response) => {
+        response.send(data);
+    });
+    app.listen(PORT, () => console.log("App is started", PORT));
+}
+);
+
+const Store = './files';
+
+fs.readdir(Store, (err, files) => {
+   
+    files.forEach(file => {
+        console.log(file);
+        revil.push(file);
+    });
+
 });
-app.listen(port,()=> {
-    console.log(`Server is running on port ${port}`)
-})
+app.get("/files", (request, response) => {
+    response.send(revil);
+});
